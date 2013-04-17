@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: python-webim
+Version: 4.0
+Summary: A Python webim client library.
+Home-page: http://github.com/webim/webim-api
+Author: Ery Lee
+Author-email: ery.lee@gmail.com
+License: Python Software Foundation License
+Description: A Python WebIM client library.
+Platform: UNKNOWN
