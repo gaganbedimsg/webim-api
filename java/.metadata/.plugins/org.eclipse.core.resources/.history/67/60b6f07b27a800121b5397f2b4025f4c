@@ -1,7 +1,0 @@
-package webim;
-
-public class Webim {
-	
-	public static String APIVSN = "v4";
-
-}
