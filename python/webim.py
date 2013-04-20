@@ -30,14 +30,14 @@ __version__ = "4.0.0beta"
 __copyright__ = "Copyright (C) 2013 Ery Lee"
 __license__   = "Python Software Foundation License"
 
-APIVSN = '4.0'
+APIVSN = 'v4'
 
 try:
   import json
 except ImportError:
   import simplejson as json
 
-import urllib2
+import urllib, urllib2
 
 class WebIMError(Exception):
     pass
@@ -64,7 +64,7 @@ class Client:
     """
     reqdata = {
       'version' : APIVSN,
-			'rooms': ','.join(groups), 
+			'groups': ','.join(groups), 
 			'buddies': ','.join(buddies),
 			'domain': self.domain, 
 			'apikey': self.apikey, 
@@ -73,10 +73,10 @@ class Client:
 			'status': self.user['status'], 
 			'show': self.user['show']
     }
-    if self.user.is_visitor():
-      reqdata['visitor'] = True
+    #if self.user.is_visitor():
+    #  reqdata['visitor'] = True
     
-    status, body = _httpost(self, '/presences/online', reqdata)
+    status, body = self._httpost('/presences/online', reqdata)
     if(status != 200):
       return {'success': False, 'error_msg': body}
     respdata = json.loads(body)
@@ -87,7 +87,7 @@ class Client:
     return {'success': True,
             'connection': conninfo,
             'buddies': respdata['buddies'],
-            'rooms': respdata['rooms'],
+            'groups': respdata['groups'],
             'server_time': 100101, #FIXME:
             'user': self.user}
 
@@ -101,52 +101,53 @@ class Client:
       'domain' : self.domain,
       'apikey' : self.apikey
     }
-    status, body = _httpost(self, '/presences/offline', reqdata)
+    status, body = self._httpost('/presences/offline', reqdata)
     return body
 
   def presence(self, show, status = ""):
     """
     Update Presence
     """
-    reqdata = _newreq()
+    reqdata = self._newreq()
     reqdata['nick'] = self.user['nick']
     reqdata['show'] = show
     reqdata['status'] = status
-    _status, body = _httpost(self, '/presences/show', reqdata)
+    _status, body = self._httpost('/presences/show', reqdata)
     return body
 
   def message(self, to, body, style, timestamp, msgtype='unicast'):
     """
     Send Message
     """
-    reqdata = _newreq()
+    reqdata = self._newreq()
     reqdata['nick'] = self.user['nick']
-    reqdata['type'] = self.msgtype
+    #TODO: fixme later
+    reqdata['type'] = 'unicast'
     reqdata['to'] = to
     reqdata['body'] = body
     reqdata['style'] = style
     reqdata['timestamp'] = timestamp
-    _status, body = _httpost(self, '/messages', reqdata)
+    _status, body = self._httpost('/messages', reqdata)
     return body
 
   def status(self, to, show):
     """
     Send Status
     """
-    reqdata = _newreq()
+    reqdata = self._newreq()
     reqdata['nick'] = self.user['nick']
     reqdata['to'] = to
     reqdata['show'] = show
-    _status, body = _httpost(self, '/statuses', reqdata)
+    _status, body = self._httpost('/statuses', reqdata)
     return body
 
   def members(self, grpid):
     """
     Get group members
     """
-    reqdata = _newreq()
-    reqdata['room'] = grpid
-    status, body = _httpost(self, '/room/members', reqdata)
+    reqdata = self._newreq()
+    reqdata['group'] = grpid
+    status, body = self._httpost('/group/members', reqdata)
     if status == 200:
       respdata = json.loads(body)
       return respdata[grpid]
@@ -156,12 +157,12 @@ class Client:
     """
     Join Group Chat
     """
-    reqdata = _newreq()
+    reqdata = self._newreq()
     reqdata['nick'] = self.user['nick']
-    reqdata['room'] = grpid
-    status, body = _httpost(self, '/room/leave', reqdata)
+    reqdata['group'] = grpid
+    status, body = self._httpost('/group/join', reqdata)
     if status == 200:
-      respdata = json.load(body)
+      respdata = json.loads(body)
       return {'id': grpid, 'count': respdata[grpid]}
     return None
   
@@ -169,10 +170,10 @@ class Client:
     """
     Leave Group Chat
     """
-    reqdata = _newreq()
+    reqdata = self._newreq()
     reqdata['nick'] = self.user['nick']
-    reqdata['room'] = grpid
-    _status, body = _httpost(self, '/room/leave', reqdata)
+    reqdata['group'] = grpid
+    _status, body = self._httpost('/group/leave', reqdata)
     return body
       
 
@@ -185,10 +186,12 @@ class Client:
     }
     
   def _httpost(self, path, data):
-    url = "http://%s:%d/%s" % (self.host, self.port, path)
+    url = "http://%s:%d/%s%s" % (self.host, self.port, APIVSN, path)
     try:
-      resp = urllib2.urlopen(url, data)
+      if __debug__: print "POST %s" % url
+      resp = urllib2.urlopen(url, urllib.urlencode(data))
       body = resp.read()
+      if __debug__: print body
       return (resp.getcode(), body)
     except urllib2.HTTPError, e:
       raise e
