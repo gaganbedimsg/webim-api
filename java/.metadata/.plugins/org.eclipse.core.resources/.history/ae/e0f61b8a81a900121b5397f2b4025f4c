@@ -1,0 +1,16 @@
+package webim;
+
+import java.util.Map;
+
+public class Presence {
+
+	private String show;
+	private String status;
+
+	public void feed(Map<String, String> data) {
+		// TODO Auto-generated method stub
+		data.put("show", show);
+		data.put("status", status);
+	}
+
+}

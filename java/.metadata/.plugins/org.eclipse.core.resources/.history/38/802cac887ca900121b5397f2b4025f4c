@@ -1,0 +1,115 @@
+package webim;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONObject;
+
+public class Client {
+	
+	private int port;
+	private User user;
+	private String domain;
+	private String apikey;
+	private String host;
+	private String ticket = "";
+
+	public Client(User user, String domain, String apikey, String host, int port) {
+		this.user = user;
+		this.domain = domain;
+		this.apikey = apikey;
+		this.host = host;
+		this.port = port;
+	}
+	
+	private Map<String, String> newData() {
+		Map<String, String> data = new HashMap<String,String>();
+		data.put("version",  WebIM.APIVSN);
+		data.put("domain", this.domain);
+		data.put("apikey", this.apikey);
+		return data;
+	}
+	
+	public JSONObject online(List<String> buddies, List<String> groups) 
+		throws WebIMException {
+		Map<String, String> data = newData();
+		data.put("groups", this.commaJoin(groups)); 
+		data.put("buddies", this.commaJoin(buddies));
+		data.put("name", this.user.getId());
+		data.put("nick", this.user.getNick());
+		data.put("status", this.user.getStatus());
+		data.put("show", this.user.getShow());
+		
+		String body = this.httpost("/presences/online", data);	    
+		//	    if(status != 200):
+		//	      return {'success': False, 'error_msg': body}
+		JSONObject obj = new JSONObject(body);
+		return obj;
+		//
+//		//	    self.ticket = respdata['ticket']
+//		//	    conninfo = {'ticket': self.ticket,
+//			                'domain': self.domain,
+//			                'server': "http://%s:%d/packets" % (self.host, self.port)}
+//			    return {'success': True,
+//			            'connection': conninfo,
+//			            'buddies': respdata['buddies'],
+//			            'groups': respdata['groups'],
+//			            'server_time': 100101, #FIXME:
+//			            'user': self.user}
+
+	}	
+
+	public String offline() {
+		Map<String, String> data = newData();
+		data.put("ticket", this.ticket);
+		this.httpost("/presences/offline", data);
+		//TODO: FIXME LATER
+		return "ok";
+	}
+		
+	public void publish(Status status) {
+		Map<String, String> data = newData();
+		data.put("ticket", this.ticket);
+		data.put("show", )
+	}
+	
+	public void publish(Presence presence) {
+		
+	}
+	
+	public void publish(Message message) {
+		String url = this.apiurl("/messages");
+		//HTTP POST
+		
+	}
+	
+	private String httpost(String path, Map<String, String> data) {
+		
+		return "ok";
+	} 
+		
+	private String commaJoin(List<String> groups) {
+		boolean first = true;
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < groups.size(); i++) {
+			if(first) {
+				sb.append(groups.get(i));
+				first = false;
+			} else {
+				sb.append(",");
+				sb.append(groups.get(i));
+			}
+		}
+		return sb.toString();
+	}
+
+	
+	private String apiurl(String path) {
+		if(!path.startsWith("/")) {
+			path = "/" + path;
+		}
+		return "http://" + this.host + ":" + Integer.toString(this.port) + WebIM.APIVSN + path; 
+	}
+
+}

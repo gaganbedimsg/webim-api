@@ -1,0 +1,25 @@
+package webim;
+
+import java.util.Map;
+
+public class Message {
+	
+	private String to;
+	private String body;
+	private String style;
+	private int timestamp;
+	
+	public void feed(Map<String, String> data) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String getTo() {
+		return to;
+	}
+
+	public void setTo(String to) {
+		this.to = to;
+	}
+
+}

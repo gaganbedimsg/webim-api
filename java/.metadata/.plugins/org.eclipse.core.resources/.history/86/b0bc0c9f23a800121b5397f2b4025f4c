@@ -1,0 +1,52 @@
+package webim;
+
+import java.util.List;
+
+public class Client {
+	
+	private int port;
+	private User user;
+	private String domain;
+	private String apikey;
+	private String host;
+
+	public Client(User user, String domain, String apikey, String host, int port) {
+		this.user = user;
+		this.domain = domain;
+		this.apikey = apikey;
+		this.host = host;
+		this.port = port;
+	}
+	
+	public void online(List<String> buddies, List<String> groups) throw WebIMException {
+		
+	}
+	
+	public void offline() {
+		
+	}
+		
+	public void publish(Status status) {
+		
+	}
+	
+	public void publish(Presence presence) {
+		
+	}
+	
+	public void publish(Message message) {
+		String url = this.apiurl("/messages");
+		//HTTP POST
+		
+	}
+	
+	private 
+	
+	private String apiurl(String path) {
+		if(!path.startsWith("/")) {
+			path = "/" + path;
+		}
+		return "http://" + this.domain + ":" + Integer.toString(this.port) + Webim.APIVSN + path; 
+	}
+
+}

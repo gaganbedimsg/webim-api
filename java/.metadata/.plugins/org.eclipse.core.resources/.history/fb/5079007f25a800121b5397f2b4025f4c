@@ -1,0 +1,89 @@
+package webim;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Client {
+	
+	private int port;
+	private User user;
+	private String domain;
+	private String apikey;
+	private String host;
+	private String ticket = "";
+
+	public Client(User user, String domain, String apikey, String host, int port) {
+		this.user = user;
+		this.domain = domain;
+		this.apikey = apikey;
+		this.host = host;
+		this.port = port;
+	}
+	
+	private Map<String, String> newData() {
+		Map<String, String> data = new HashMap<String,String>();
+		data.put("version",  Webim.APIVSN);
+		data.put("domain", this.domain);
+		data.put("apikey", this.apikey);
+		return data;
+	}
+	
+	public void online(List<String> buddies, List<String> groups) 
+		throws WebIMException {
+		Map<String, String> data = newData();
+		data.put("groups", this.listJoin(groups)); 
+		data.put("buddies", this.listJoin(buddies)),
+		data.put("name", this.user.getId());
+		data.put("nick", this.user.getNick());
+		data.put("status", this.user.getStatus());
+		data.put("show", this.user.getShow());
+		
+		String body = this.httpost("/presences/online", data);	    
+			    if(status != 200):
+			      return {'success': False, 'error_msg': body}
+			    respdata = json.loads(body)
+			    self.ticket = respdata['ticket']
+			    conninfo = {'ticket': self.ticket,
+			                'domain': self.domain,
+			                'server': "http://%s:%d/packets" % (self.host, self.port)}
+			    return {'success': True,
+			            'connection': conninfo,
+			            'buddies': respdata['buddies'],
+			            'groups': respdata['groups'],
+			            'server_time': 100101, #FIXME:
+			            'user': self.user}
+
+	}	
+	
+	public void offline() {
+		
+	}
+		
+	public void publish(Status status) {
+		
+	}
+	
+	public void publish(Presence presence) {
+		
+	}
+	
+	public void publish(Message message) {
+		String url = this.apiurl("/messages");
+		//HTTP POST
+		
+	}
+	
+	private String httpost(String path, Map<String, String> data) {
+		
+		return "ok";
+	} 
+	
+	private String apiurl(String path) {
+		if(!path.startsWith("/")) {
+			path = "/" + path;
+		}
+		return "http://" + this.domain + ":" + Integer.toString(this.port) + Webim.APIVSN + path; 
+	}
+
+}

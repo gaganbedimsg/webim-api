@@ -1,0 +1,69 @@
+package webim;
+
+import static org.junit.Assert.*;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+public class ClientTest {
+	
+	private Client c;
+
+	@Before
+	public void setUp() throws Exception {
+		User u = new User("1", "erylee", "online", "I am Online");
+		Client c = new Client(u, "webim20.cn", "public", "localhost", 5000);
+		c.setTicket("ticket");
+	}
+
+	@After
+	public void tearDown() throws Exception {
+	}
+
+	@Test
+	public void testOnline() throws Exception {
+		c.offline();
+	}
+
+	@Test
+	public void testOffline()  throws Exception {
+		c.offline();
+	}
+
+	@Test 
+	public void testPublishStatus() throws Exception {
+		c.publish(new Status("2", "typing", "Coding..."));
+	}
+	
+	@Test
+	public void testPublishMessage() throws Exception {
+		c.publish(new Message("2", "body", "", 100));
+	}
+	
+	@Test
+	public void testPublishPresence() throws Exception {
+		
+	}
+	
+	@Test
+	public void testMembers() throws Exception {
+		
+	}
+	
+	@Test
+	public void testLeave() throws Exception {
+		
+	}
+	
+	@Test
+	public void testJoin() throws Exception {
+		
+	}
+
+	@Test
+	public void test() {
+		fail("Not yet implemented");
+	}
+
+}

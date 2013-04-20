@@ -1,0 +1,45 @@
+package webim;
+
+
+public class User {
+
+	public String status;
+	public String id;
+	public String nick;
+	public String show;
+
+	public User(String id, String nick) {
+		this.setId(id);
+		this.setNick(nick);
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getNick() {
+		return nick;
+	}
+
+	public void setNick(String nick) {
+		this.nick = nick;
+	}
+
+	public String getStatus() {
+		// TODO Auto-generated method stub
+		return status;
+	}
+	
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getShow() {
+		// TODO Auto-generated method stub
+		return show;
+	}
+}

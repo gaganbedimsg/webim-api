@@ -1,0 +1,15 @@
+package webim;
+
+
+public class User {
+
+	public String status;
+	public String id;
+	public String nick;
+	public String show;
+
+	public User(String id, String nick) {
+		this.setId(id);
+		this.setNick(nick);
+	}
+}

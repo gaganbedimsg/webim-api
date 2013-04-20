@@ -1,0 +1,12 @@
+package webim;
+
+public class User {
+
+	private String id;
+	private String nick;
+
+	public User(String id, String nick) {
+		this.id = id;
+		this.nick = nick;
+	}
+}

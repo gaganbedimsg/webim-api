@@ -1,0 +1,30 @@
+package webim;
+
+public class Client {
+	
+	public Client() {
+		//Webim.APIVSN;	
+	}
+	
+	public void online() {
+		
+	}
+	
+	public void offline() {
+		
+	}
+	
+	public void publish(Status status) {
+		
+		
+	}
+	
+	public void sendPresence() {
+		
+	}
+	
+	public void sendMessage() {
+		
+	}
+
+}
