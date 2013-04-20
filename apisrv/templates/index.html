@@ -1,0 +1,22 @@
+<html>
+<head>
+  <title>NextIM API Test Server</title>
+</head>
+<body>
+  <h1> NextIM Server API </h1>
+  <table width="100%">
+    <thead>
+      <tr><td>Methods</td> <td>URL</td> <td>Description</td> </tr>
+    </thead>
+    <tbody>
+      {% for methods, url in apis %}
+      <tr>
+        <td>{{methods}}</td>
+        <td>{{url}}</td>
+        <td></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
