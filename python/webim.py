@@ -37,14 +37,22 @@ try:
 except ImportError:
   import simplejson as json
 
-import urllib, urllib2
+import socket, urllib, urllib2
 
 class WebIMError(Exception):
     pass
 
+class User:
+
+  def __init__(self, uid, nick, show, status):
+    self.uid = uid
+    self.nick = nick
+    self.show = show
+    self.status = status
+
 class Client:
   
-  def __init__(self, user, domain, apikey, ticket=None, host = 'localhost', port=8000):
+  def __init__(self, user, domain, apikey, ticket=None, host = 'localhost', port=8000, timeout=3):
     """
     Create a new Client object with the given host and port
 
@@ -57,6 +65,7 @@ class Client:
     self.ticket = ticket
     self.host = host
     self.port = port
+    self.timeout = timeout
 
   def online(self, buddies, groups):
     """
@@ -87,7 +96,7 @@ class Client:
     return {'success': True,
             'connection': conninfo,
             'buddies': respdata['buddies'],
-            'groups': respdata['groups'],
+            'groups': respdata['roominfo'], #groups
             'server_time': 100101, #FIXME:
             'user': self.user}
 
@@ -147,7 +156,7 @@ class Client:
     """
     reqdata = self._newreq()
     reqdata['group'] = grpid
-    status, body = self._httpost('/group/members', reqdata)
+    status, body = self._httpget('/group/members', reqdata)
     if status == 200:
       respdata = json.loads(body)
       return respdata[grpid]
@@ -184,15 +193,40 @@ class Client:
       'apikey': self.apikey,
       'ticket': self.ticket
     }
-    
-  def _httpost(self, path, data):
-    url = "http://%s:%d/%s%s" % (self.host, self.port, APIVSN, path)
+
+  def _httpget(self, path, params=None):
+    url = self._apiurl(path)
+    if params is not None:
+      url += "?" + urllib.urlencode(params)
     try:
-      if __debug__: print "POST %s" % url
-      resp = urllib2.urlopen(url, urllib.urlencode(data))
+      if __debug__: print "GET %s" % url
+      resp = urllib2.urlopen(url, timeout=self.timeout)
       body = resp.read()
       if __debug__: print body
       return (resp.getcode(), body)
     except urllib2.HTTPError, e:
       raise e
+
+    
+  def _httpost(self, path, data):
+    url = self._apiurl(path)
+    try:
+      if __debug__: print "POST %s" % url
+      resp = urllib2.urlopen(url, urllib.urlencode(data), self.timeout)
+      body = resp.read()
+      if __debug__: print body
+      return (resp.getcode(), body)
+    except urllib2.HTTPError, e:
+      raise e
+
+  def _apiurl(self, path):
+    return "http://%s:%d/%s%s" % (self.host, self.port, APIVSN, path)
+    
+
+  #NOTICE: for test
+  def poll(self):
+    data = {'domain' : self.domain,
+            'ticket': self.ticket,
+            'callback': 'callback'}
+    return self._httpget("/packets", data)
  
