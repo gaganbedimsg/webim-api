@@ -4,3 +4,4 @@
 apisrv/venv
 java/.metadata
 *.class
+java/webim/bin/

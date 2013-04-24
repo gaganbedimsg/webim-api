@@ -2,6 +2,7 @@ package webim;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -35,6 +36,13 @@ public class Client {
 		this.ticket = ticket;
 	}
 
+	/**
+	 * User online
+	 * @param buddies
+	 * @param groups
+	 * @return JSONObject
+	 * @throws WebIMException
+	 */
 	public JSONObject online(List<String> buddies, List<String> groups)
 			throws WebIMException {
 		Map<String, String> data = newData();
@@ -70,72 +78,19 @@ public class Client {
 			throw new WebIMException(500, e.getMessage());
 		}
 	}
+	
 
-	public String offline() throws WebIMException {
+	/**
+	 * User Offline
+	 * 
+	 * @return JSONObject "{'status': 'ok'}" or "{'status': 'error', 'message': 'blabla'}"
+	 * @throws WebIMException
+	 */
+	public JSONObject offline() throws WebIMException {
 		Map<String, String> data = newData();
 		data.put("ticket", this.ticket);
 		try {
 			String body = httpost("/presences/offline", data);
-			return body;
-		} catch (WebIMException e) {
-			throw e;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new WebIMException(500, e.getMessage());
-		}
-	}
-
-	public String publish(Presence presence) throws WebIMException {
-		Map<String, String> data = newData();
-		data.put("nick", user.nick);
-		presence.feed(data);
-		try {
-			String body = httpost("/presences/show", data);
-			return body;
-		} catch (WebIMException e) {
-			throw e;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new WebIMException(500, e.getMessage());
-		}
-	}
-
-	public String publish(Status status) throws WebIMException {
-		Map<String, String> data = newData();
-		data.put("nick", user.nick);
-		status.feed(data);
-		try {
-			String body = httpost("/statuses", data);
-			return body;
-		} catch (WebIMException e) {
-			throw e;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new WebIMException(500, e.getMessage());
-		}
-	}
-
-	public String publish(Message message) throws WebIMException {
-		Map<String, String> data = newData();
-		data.put("type", "unicast"); //TODO: FIXLATER
-		data.put("nick", user.nick);
-		message.feed(data);
-		try {
-			String body = httpost("/messages", data);
-			return body;
-		} catch (WebIMException e) {
-			throw e;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new WebIMException(500, e.getMessage());
-		}
-	}
-
-	public JSONObject members(String grpid) throws WebIMException {
-		Map<String, String> data = newData();
-		data.put("group", grpid);
-		try {
-			String body = httpost("/group/members", data);
 			return new JSONObject(body);
 		} catch (WebIMException e) {
 			throw e;
@@ -145,17 +100,107 @@ public class Client {
 		}
 	}
 
-	
+	/**
+	 * Publish updated presence.
+	 *  
+	 * @param presence
+	 * @return JSONObject "{'status': 'ok'}" or "{'status': 'error', 'message': 'blabla'}"
+	 * @throws WebIMException
+	 */
+	public JSONObject publish(Presence presence) throws WebIMException {
+		Map<String, String> data = newData();
+		data.put("nick", user.nick);
+		presence.feed(data);
+		try {
+			String body = httpost("/presences/show", data);
+			return new JSONObject(body);
+		} catch (WebIMException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WebIMException(500, e.getMessage());
+		}
+	}
+
+	/**
+	 * Publish status
+	 * @param status
+	 * @return JSONObject "{'status': 'ok'}" or "{'status': 'error', 'message': 'blabla'}"
+	 * @throws WebIMException
+	 */
+	public JSONObject publish(Status status) throws WebIMException {
+		Map<String, String> data = newData();
+		data.put("nick", user.nick);
+		status.feed(data);
+		try {
+			String body = httpost("/statuses", data);
+			return new JSONObject(body);
+		} catch (WebIMException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WebIMException(500, e.getMessage());
+		}
+	}
+
+	/**
+	 * Publish Message
+	 * @param message
+	 * @return JSONObject "{'status': 'ok'}" or "{'status': 'error', 'message': 'blabla'}"
+	 * @throws WebIMException
+	 */
+	public JSONObject publish(Message message) throws WebIMException {
+		Map<String, String> data = newData();
+		data.put("type", "unicast"); //TODO: FIXLATER
+		data.put("nick", user.nick);
+		message.feed(data);
+		try {
+			String body = httpost("/messages", data);
+			return new JSONObject(body);
+		} catch (WebIMException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WebIMException(500, e.getMessage());
+		}
+	}
+
+	/**
+	 * Get group members
+	 * @param grpid
+	 * @return member list
+	 * @throws WebIMException
+	 */
+	public JSONObject members(String grpid) throws WebIMException {
+		Map<String, String> data = newData();
+		data.put("group", grpid);
+		try {
+			String body = httpget("/group/members", data);
+			return new JSONObject(body);
+		} catch (WebIMException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WebIMException(500, e.getMessage());
+		}
+	}
+
+	/**
+	 * Join Group
+	 * @param grpid
+	 * @return JSONObject "{'id': 'grpid', 'count': '0'}"
+	 * @throws WebIMException
+	 */
 	public JSONObject join(String grpid) throws WebIMException {
 		Map<String, String> data = newData();
 		data.put("nick", user.nick);
 		data.put("group", grpid);
 		try {
-			httpost("/group/join", data);
-			// String body =
+			String body = httpost("/group/join", data);
+			JSONObject respObj = new JSONObject(body);
 			JSONObject rtObj = new JSONObject();
 			rtObj.put("id", grpid);
-			rtObj.put("count", 0); // FIXME:
+			rtObj.put("count", respObj.getInt(grpid)); 
 			return rtObj;
 		} catch (WebIMException e) {
 			throw e;
@@ -165,19 +210,44 @@ public class Client {
 		}
 	}
 
-	public String leave(String grpid) throws WebIMException {
+	/**
+	 * Leave Group
+	 * @param grpid
+	 * @return JSONObject "{'status': 'ok'}" or "{'status': 'error', 'message': 'blabla'}"
+	 * @throws WebIMException
+	 */
+	public JSONObject leave(String grpid) throws WebIMException {
 		Map<String, String> data = newData();
 		data.put("nick", user.nick);
 		data.put("group", grpid);
 		try {
 			String body = httpost("/group/leave", data);
-			return body;
+			return new JSONObject(body);
 		} catch (WebIMException e) {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new WebIMException(500, e.getMessage());
 		}
+	}
+	
+	private String httpget(String path, Map<String, String> params)
+			throws Exception {
+		URL url;
+		HttpURLConnection conn = null;
+		try {
+			url = new URL(apiurl(path) + "?" + encodeData(params));
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			initConn(conn);
+			conn.connect();
+			return readResonpse(conn);
+		} finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
+		}
+
 	}
 
 	private String httpost(String path, Map<String, String> data)
@@ -195,9 +265,7 @@ public class Client {
 			conn.setRequestProperty("Content-Length",
 					"" + Integer.toString(urlParameters.getBytes().length));
 
-			conn.setUseCaches(false);
-			conn.setDoInput(true);
-			conn.setDoOutput(true);
+			initConn(conn);
 
 			// Send request
 			DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
@@ -205,27 +273,37 @@ public class Client {
 			wr.flush();
 			wr.close();
 
-			// Get Response
-			if (conn.getResponseCode() != 200) {
-				throw new WebIMException(conn.getResponseCode(),
-						conn.getResponseMessage());
-			}
-			BufferedReader rd = new BufferedReader(new InputStreamReader(
-					conn.getInputStream()));
-			String line;
-			StringBuffer response = new StringBuffer();
-			while ((line = rd.readLine()) != null) {
-				response.append(line);
-				// response.append("\r\n");
-			}
-			System.out.println(response.toString());
-			rd.close();
-			return response.toString();
+			return readResonpse(conn);
 		} finally {
 			if (conn != null) {
 				conn.disconnect();
 			}
 		}
+	}
+
+	private void initConn(HttpURLConnection conn) {
+		conn.setUseCaches(false);
+		conn.setDoInput(true);
+		conn.setDoOutput(true);
+	}
+
+	private String readResonpse(HttpURLConnection conn) throws IOException,
+			WebIMException {
+		// Get Response
+		if (conn.getResponseCode() != 200) {
+			throw new WebIMException(conn.getResponseCode(),
+					conn.getResponseMessage());
+		}
+		BufferedReader rd = new BufferedReader(new InputStreamReader(
+				conn.getInputStream()));
+		String line;
+		StringBuffer response = new StringBuffer();
+		while ((line = rd.readLine()) != null) {
+			response.append(line);
+		}
+		System.out.println(response.toString());
+		rd.close();
+		return response.toString();
 	}
 
 	private Map<String, String> newData() {
