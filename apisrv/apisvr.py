@@ -8,7 +8,8 @@
   :copyright: (c) 2013 by Ery Lee(ery.lee at gmail.com)
 """
 
-from flask import Flask, request, jsonify, url_for, render_template
+from flask import Flask, request, json, jsonify, url_for, \
+                make_response, render_template
 
 APIVSN='v4'
 
@@ -21,11 +22,15 @@ def before_reqest():
   if request.method == "POST":
     print request.form
 
+def _isapi(rule):
+  isapi = ('POST' in rule.methods) or ('GET' in rule.methods)
+  return isapi and (rule.endpoint != 'static') and (rule.endpoint != 'index')
+
 @app.route("/")
 def index():
-  apis = [('POST', url_for(rule.endpoint)) 
+  apis = [(rule.methods, url_for(rule.endpoint)) 
             for rule in app.url_map.iter_rules() 
-              if 'POST' in rule.methods]
+              if _isapi(rule)]
   return render_template("/index.html", apis = apis)
 
 @app.route("/v4/presences/online", methods=["POST"])
@@ -47,7 +52,7 @@ def online():
 def offline():
   ticket = request.form['ticket']
   domain = request.form['domain']
-  return "ok"
+  return jsonify({"status": "ok"})
   
 @app.route("/v4/presences/show", methods=["POST"])
 def presence():
@@ -56,7 +61,7 @@ def presence():
   nick = request.form['nick']
   show = request.form['show']
   status = request.form['status']
-  return "ok"
+  return jsonify({"status": "ok"})
   
 @app.route("/v4/messages", methods=["POST"])
 def messages():
@@ -67,7 +72,7 @@ def messages():
   nick = request.form['nick']
   style = request.form['style']
   timestamp = request.form['timestamp']
-  return "ok"
+  return jsonify({"status": "ok"})
 
 @app.route("/v4/statuses", methods=["POST"])
 def statuses():
@@ -75,13 +80,13 @@ def statuses():
   domain = request.form['domain']
   nick = request.form['nick']
   show = request.form['show']
-  return "ok"
+  return jsonify({"status": "ok"})
 
-@app.route("/v4/group/members", methods=["POST"])
+@app.route("/v4/group/members", methods=["GET"])
 def members():
-  ticket = request.form['ticket']
-  domain = request.form['domain']
-  group = request.form['group']
+  ticket = request.args['ticket']
+  domain = request.args['domain']
+  group = request.args['group']
   return jsonify({group: [{'id': '1', 'nick': 'nick'}]})
 
 @app.route("/v4/group/leave", methods=["POST"])
@@ -90,7 +95,7 @@ def leave():
   domain = request.form['domain']
   group = request.form['group']
   nick = request.form['nick']
-  return "ok"
+  return jsonify({"status": "ok"})
 
 @app.route("/v4/group/join", methods=["POST"])
 def join():
@@ -100,6 +105,16 @@ def join():
   nick = request.form['nick']
   return jsonify({group: 1})
 
+@app.route("/v4/packets", methods=["GET"])
+def packets():
+  ticket = request.args['ticket']
+  domain = request.args['domain']
+  callback = request.args['callback']
+  data = json.dumps({'status': 'ok', 'messages': [], 'presences': [], 'statuses': []})
+  response = make_response("%s(%s);" % (callback, data))
+  response.headers['Content-Type'] = 'application/javascript; charset=utf-8';
+  return response
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", port=8000)
 

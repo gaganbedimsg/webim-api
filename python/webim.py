@@ -96,7 +96,7 @@ class Client:
     return {'success': True,
             'connection': conninfo,
             'buddies': respdata['buddies'],
-            'groups': respdata['roominfo'], #groups
+            'groups': respdata['groups'], #groups
             'server_time': 100101, #FIXME:
             'user': self.user}
 
@@ -227,6 +227,6 @@ class Client:
   def poll(self):
     data = {'domain' : self.domain,
             'ticket': self.ticket,
-            'callback': 'callback'}
+            'callback': 'alert'}
     return self._httpget("/packets", data)
  
